@@ -40,17 +40,6 @@ if (document.readyState == "loading") {
 // DOMContentLoaded before it actually calls
 // the ready function
 
-
-
-
-
-
-
-
-
-
-
-
 function ready() {
   var removeCartItemButtons = document.getElementsByClassName("btn-danger"); //it's  an array
   //document is an object that JavaScript gives to
@@ -66,60 +55,103 @@ function ready() {
     button.addEventListener("click", removeCartItems);
   }
 
-  var quantityInputs=document.getElementsByClassName('cart-quantity-input');
+  var quantityInputs = document.getElementsByClassName("cart-quantity-input");
+
+  for (var i = 0; i < quantityInputs.length; i++) {
+    var input = quantityInputs[i];
+    input.addEventListener("change", quantityChanged);
+  }
+
+  var addToCartButtons = document.getElementsByClassName("shop-item-button");
+  for (var i = 0; i < addToCartButtons.length; i++) {
+    var button = addToCartButtons[i];
+    button.addEventListener("click", addToCartClicked);
+  }
+
   
-  for(var i=0;i<quantityInputs.length;i++){
-    var input=quantityInputs[i];
-    input.addEventListener('change',quantityChanged);
-
-  }
-
-  var addToCartButtons=document.getElementsByClassName('shop-item-button');
-  for(var i=0;i<addToCartButtons.length;i++){
-    var button=addToCartButtons[i];
-    button.addEventListener('click',addToCartClicked);
-  }
-
 
 } //ready() ends
 
-function addToCartClicked(event){
-  var button=event.target;
-  var shopItem=button.parentElement.parentElement;
-  var title=shopItem.getElementsByClassName('shop-item-title')[0].innerText
-  var price=shopItem.getElementsByClassName('shop-item-price')[0].innerText
-  var imageSrc=shopItem.getElementsByClassName('shop-item-image')[0].src
+function addToCartClicked(event) {
+  var button = event.target;
+  var shopItem = button.parentElement.parentElement;
+  var title = shopItem.getElementsByClassName("shop-item-title")[0].innerText;
+  var price = shopItem.getElementsByClassName("shop-item-price")[0].innerText;
+  var imageSrc = shopItem.getElementsByClassName("shop-item-image")[0].src;
   //I used src attribute
-  console.log(title,price,imageSrc);
+  console.log(title, price, imageSrc);
 
-  addItemToCart(title,price,imageSrc);
+  addItemToCart(title, price, imageSrc);
   //Main lesson of the tutorial
+  updateCartTotal();
+
+  
 }
 
-function addItemToCart(title,price,imageSrc){
-  var cartRow = document.createElement('div');
-//   if we run this document create element it's going
-// to create a brand new div it's not going to add it to our HTML yet
-// but we have a div that we can now later add to our HTML
+function addItemToCart(title, price, imageSrc) {
+  var cartRow = document.createElement("div");
+  //   if we run this document create element it's going
+  // to create a brand new div it's not going to add it to our HTML yet
+  // but we have a div that we can now later add to our HTML
 
-// 29:39
+  cartRow.classList.add("cart-row");
+  //to add the class to a new created div
+  var cartItems = document.getElementsByClassName("cart-items")[0];
+  var cartItemNames = cartItems.getElementsByClassName("cart-item-title");
+
+  for (var i = 0; i < cartItemNames.length; i++) {
+    if (cartItemNames[i].innerText == title) {
+      alert("This item is already added to the cart")
+      return
+      //stops the function from further execution and sends back to where it was called
+    }
+  }
+
+  var cartRowContents = `
+          <div class="cart-item cart-column">
+            <img
+              class="cart-item-image"
+              src="${imageSrc}"
+              width="100"
+              height="100"
+            />
+            <span class="cart-item-title">${title}</span>
+          </div>
+
+          <span class="cart-price cart-column">${price}</span>
+
+          <div class="cart-quantity cart-column">
+            <input class="cart-quantity-input" type="number" value="1" />
+            <button class="btn btn-danger" type="button">REMOVE</button>
+          </div>
+`;
+  // " ` " is called  backtick and  is used to write multiple lines ,instead of quotation marks
+
+  cartRow.innerHTML = cartRowContents;
+  cartItems.append(cartRow);
+  //adds cartItems just before </div> of div.cart-items
+  // remove button not working on newly created div in addItemToCart 
+  // bcoz we only added these event listeners as soon as our 
+  //document loaded and this remove button was not here when
+// the document loaded this was added after we loaded the
+// document
+
+cartRow.getElementsByClassName('btn-danger')[0].addEventListener('click',removeCartItems);
+cartRow.getElementsByClassName("cart-quantity-input")[0].addEventListener('change',quantityChanged);
 }
 
+// Now gonna go to html to remove default items added to cart
 
-function quantityChanged(event){
-  var input =event.target;
-  if(isNaN(input.value)||input.value<=0){
-    input.value=1;
+
+
+function quantityChanged(event) {
+  var input = event.target;
+  if (isNaN(input.value) || input.value <= 0) {
+    input.value = 1;
   }
   updateCartTotal();
+  
 }
-
-
-
-
-
-
-
 
 function removeCartItems(event) {
   //take our function here and this event listener always
@@ -133,24 +165,13 @@ function removeCartItems(event) {
   updateCartTotal();
 }
 
-
-
-
-
-
-
-
-
-
-
-
 function updateCartTotal() {
   var cartItemContainer = document.getElementsByClassName("cart-items")[0];
   //there's only one cart-items class
   var cartRows = cartItemContainer.getElementsByClassName("cart-row");
   //there's 3 cart-row classes
   var total = 0;
-  
+
   for (var i = 1; i < cartRows.length; i++) {
     //I put i=1 bcoz oth index cart-row class contained column names -> items price quantity
     var cartRow = cartRows[i];
@@ -163,25 +184,22 @@ function updateCartTotal() {
     // to remove $ sign
     var price = parseFloat(priceElement.innerText.replace("$", ""));
     console.log("price=" + price);
-    var quantity = quantityElement.value; 
+    var quantity = quantityElement.value;
     //bcoz input elements dont have Text content also value is an attribute
     console.log("quantity=" + quantity);
     total = total + price * quantity;
     //total is outta this for loop
     console.log("Total =" + total);
-  
-  }//loop ends
-  total=Math.round(total*100)/100;
+  } //loop ends
+  total = Math.round(total * 100) / 100;
   // first total is multiplied with 100 to move 2 decimal places
-  // towards right ,after that its rounded that means number now 
+  // towards right ,after that its rounded that means number now
   // doesn't contain any decimal value
   // after again its divided by 100 to move 2 deci places towards left
   // e.g  number= 12.454545
   // step 1- 1245.4545
   // step 2- 1245 or 1246 if(number = 1245.5545)
   // step 3- 1245/100 = 12.45
-
-
 
   var cartTotal = document.getElementsByClassName("cart-total-price")[0];
   cartTotal.innerText = "$" + total;
