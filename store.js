@@ -68,9 +68,19 @@ function ready() {
     button.addEventListener("click", addToCartClicked);
   }
 
-  
-
+  document
+    .getElementsByClassName("btn-purchase")[0]
+    .addEventListener("click", purchaseClicked);
 } //ready() ends
+
+function purchaseClicked() {
+  alert("Thank you for your purchase");
+  var cartItems = document.getElementsByClassName("cart-items")[0];
+  while (cartItems.hasChildNodes()) {
+    cartItems.removeChild(cartItems.firstChild);
+  }
+  updateCartTotal();
+}
 
 function addToCartClicked(event) {
   var button = event.target;
@@ -84,8 +94,6 @@ function addToCartClicked(event) {
   addItemToCart(title, price, imageSrc);
   //Main lesson of the tutorial
   updateCartTotal();
-
-  
 }
 
 function addItemToCart(title, price, imageSrc) {
@@ -101,8 +109,8 @@ function addItemToCart(title, price, imageSrc) {
 
   for (var i = 0; i < cartItemNames.length; i++) {
     if (cartItemNames[i].innerText == title) {
-      alert("This item is already added to the cart")
-      return
+      alert("This item is already added to the cart");
+      return;
       //stops the function from further execution and sends back to where it was called
     }
   }
@@ -130,19 +138,21 @@ function addItemToCart(title, price, imageSrc) {
   cartRow.innerHTML = cartRowContents;
   cartItems.append(cartRow);
   //adds cartItems just before </div> of div.cart-items
-  // remove button not working on newly created div in addItemToCart 
-  // bcoz we only added these event listeners as soon as our 
+  // remove button not working on newly created div in addItemToCart
+  // bcoz we only added these event listeners as soon as our
   //document loaded and this remove button was not here when
-// the document loaded this was added after we loaded the
-// document
+  // the document loaded this was added after we loaded the
+  // document
 
-cartRow.getElementsByClassName('btn-danger')[0].addEventListener('click',removeCartItems);
-cartRow.getElementsByClassName("cart-quantity-input")[0].addEventListener('change',quantityChanged);
+  cartRow
+    .getElementsByClassName("btn-danger")[0]
+    .addEventListener("click", removeCartItems);
+  cartRow
+    .getElementsByClassName("cart-quantity-input")[0]
+    .addEventListener("change", quantityChanged);
 }
 
 // Now gonna go to html to remove default items added to cart
-
-
 
 function quantityChanged(event) {
   var input = event.target;
@@ -150,7 +160,6 @@ function quantityChanged(event) {
     input.value = 1;
   }
   updateCartTotal();
-  
 }
 
 function removeCartItems(event) {
